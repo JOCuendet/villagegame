@@ -23,25 +23,28 @@ public class PlayerHandler implements Runnable {
     private PrintStream out;
     private InputStream in;
 
-    public PlayerHandler(Server server, Socket clientSocket){
+    public PlayerHandler(Server server, Socket clientSocket) {
         this.commandsHandler = new CommandsHandler(this);
         this.server = server;
         this.clientSocket = clientSocket;
         this.wolf = false;
         this.dead = false;
     }
-    public void init(){
+
+    public void init() {
         try {
             this.out = new PrintStream(clientSocket.getOutputStream());
             this.in = clientSocket.getInputStream();
-            this.prompt = new Prompt(in ,out);
+            this.prompt = new Prompt(in, out);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public boolean getIsGameStart(){
+
+    public boolean getIsGameStart() {
         return server.getIsStartGame();
     }
+
     public Socket getClientSocket() {
         return clientSocket;
     }
@@ -70,30 +73,31 @@ public class PlayerHandler implements Runnable {
 
     @Override
     public void run() {
+
         init();
         this.alias = setRandomAlias();
         String message;
 
         StringInputScanner question1 = new StringInputScanner();
-        question1.setMessage(getAlias()+ ": ");
+        question1.setMessage(getAlias() + ": ");
         while (!clientSocket.isClosed() && (clientSocket != null)) {
             synchronized (this) {
 
-                    if ((message = prompt.getUserInput(question1)) == null) {
-                        System.out.println("null");
-                        return;
-                    }
-                    System.out.println(getAlias() + " says: " + message);
-                    commandsHandler.handlePlayerInput(message);
+                if ((message = prompt.getUserInput(question1)) == null) {
+                    System.out.println("null");
+                    return;
+                }
+                System.out.println(getAlias() + " says: " + message);
+                commandsHandler.handlePlayerInput(message);
             }
         }
     }
 
-    public void playerToKill(String message){
-            server.playerToKill(message);
+    public void playerToKill(String message) {
+        server.setPlayerToKill(message);       // qué ito
     }
 
-    public void readyToPlay(){
+    public void readyToPlay() {
         server.sendReadyStatus();
     }
 
@@ -116,39 +120,25 @@ public class PlayerHandler implements Runnable {
         server.sendKilledMessage(playerHandler);
     }
 
-    public void broadCastMessage(String message){
-        server.broadCast(message);
-    }
-
-    private void closeAll(Closeable closeable){
-
-    }
-
-    public void kill(PlayerHandler playerHandler) {
-
-        playerHandler.die();
-        server.sendKilledMessage(playerHandler);
-    }
-
-    public void broadCastMessage(String message){
+    public void broadCastMessage(String message) {
         server.broadCast(this, message);
     }
 
-    private void closeAll(Closeable closeable){
+    private void closeAll(Closeable closeable) {
 
     }
 
-    public void vote(String votedPlayer){
+    public void vote(String votedPlayer) {
         server.sendVote(votedPlayer);
     }
 
     public void returnMessage(String message) {
-            out.println(message);
-            out.flush();
+        out.println(message);
+        out.flush();
     }
 
     public void log(String message) {
-       server.log(this, message);
+        server.log(this, message);
     }
 
     public void exit() {
@@ -171,7 +161,7 @@ public class PlayerHandler implements Runnable {
     public String showList() {
 
         StringBuilder clientsList = new StringBuilder();
-        for (PlayerHandler list : server.getPlayersList()){
+        for (PlayerHandler list : server.getPlayersList()) {
             clientsList.append(list.alias + " | ");
         }
         clientsList.substring(clientsList.length() - 2);

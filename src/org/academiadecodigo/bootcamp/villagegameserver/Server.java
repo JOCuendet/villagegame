@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 
 
 public class Server {
+
     private ExecutorService clientThreadPool;
     private ServerSocket serverSocket;
     private Socket clientSocket;
@@ -18,11 +19,8 @@ public class Server {
     private PlayerHandler playerhandler;
     private ArrayList<String> votes;
     private boolean exit;
-    private ArrayList<String> votes = new ArrayList<>();
-    private boolean exit = false;
     private int countPlayers;
     private boolean isStartGame ;
-    private PlayerHandler playerKilledByWolf;
     private CopyOnWriteArrayList<PlayerHandler> playersList;
     private PlayerHandler playerToKill;
     private int numberPlayers;
@@ -74,7 +72,7 @@ public class Server {
         }
     }
 
-    public void start(){
+    public void start() throws InterruptedException {
 
         game = new Game(this,playersList);
         try {
@@ -114,21 +112,22 @@ public class Server {
         }
     }
 
-    public void sendKilledMessage(PlayerHandler player) {
-        String message = "you'be been killed by the wolf";
-        if (player.isWolf()) {
-            message = "you've been killed by villagers";
-        }
+    public void broadCast(String message){
 
-        PrintWriter outMessage = null;
-        try {
-            outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (PlayerHandler player: playersList) {
+
+            PrintWriter outMessage = null;
+            try {
+                outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            outMessage.println(message);
+            outMessage.flush();
         }
-        outMessage.println(message);
-        outMessage.flush();
     }
+
+
 
     public void setPlayerToKill(String playerNameKilledByWolf) {
 

@@ -19,9 +19,9 @@ public class CommandsHandler {
         return option[1];
     }
 
-    private  String join(String[] strings, int startIndex) {
+    private String join(String[] strings, int startIndex) {
         StringBuffer sb = new StringBuffer();
-        for (int i=startIndex; i < strings.length; i++) {
+        for (int i = startIndex; i < strings.length; i++) {
             sb.append(strings[i]);
         }
         return sb.toString();
@@ -92,10 +92,10 @@ public class CommandsHandler {
             helpMessage += "\n /ready                          [set ready to play]" +
                     "\n /quit                           [Exit the game]";
         } else {
-            if(true) { // TODO: 30/06/2019 FERNANDO MUDA ISTO COM A CENA DE SE JA VOTOU OU NAO
+            if (true) { // TODO: 30/06/2019 FERNANDO MUDA ISTO COM A CENA DE SE JA VOTOU OU NAO
                 helpMessage +=
                         "\n /vote                           [vote for the person you think it is the wolf]";
-            }else{
+            } else {
                 helpMessage += "\n /changevote                     [vote for the person you think it is the wolf]";
             }
 
