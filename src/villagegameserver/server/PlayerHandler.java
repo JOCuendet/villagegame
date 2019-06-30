@@ -2,28 +2,32 @@
  * Created by Jonathan Cuendet
  */
 
-package org.academiadecodigo.bootcamp.villagegameserver;
+package villagegameserver.server;
 
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-
-import java.io.*;
+import villagegameserver.aesthetics.ConsoleColors;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Scanner;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PlayerHandler implements Runnable {
 
-    private Server server;
+    public volatile Server server;
     private Socket clientSocket;
-    private Prompt prompt;
+    private volatile Prompt prompt;
     private String alias;
     private boolean wolf;
     private boolean dead;
     private CommandsHandler commandsHandler;
     private PrintStream out;
     private InputStream in;
+    private StringInputScanner question1;
 
-    public PlayerHandler(Server server, Socket clientSocket) {
+    PlayerHandler(Server server, Socket clientSocket) {
         this.commandsHandler = new CommandsHandler(this);
         this.server = server;
         this.clientSocket = clientSocket;
@@ -31,9 +35,9 @@ public class PlayerHandler implements Runnable {
         this.dead = false;
     }
 
-    public void init() {
+    private void init() {
         try {
-            this.out = new PrintStream(clientSocket.getOutputStream());
+            this.out = new PrintStream(clientSocket.getOutputStream(), true);
             this.in = clientSocket.getInputStream();
             this.prompt = new Prompt(in, out);
         } catch (IOException e) {
@@ -57,12 +61,6 @@ public class PlayerHandler implements Runnable {
         this.wolf = true;
     }
 
-    public String wolfVotes() {
-        StringInputScanner wolfVote = new StringInputScanner();
-        wolfVote.setMessage("Who will you kill tonight?");
-        return prompt.getUserInput(wolfVote);
-    }
-
     public void setAlias(String message) {
         this.alias = message;
     }
@@ -71,15 +69,21 @@ public class PlayerHandler implements Runnable {
         return alias;
     }
 
+    public Prompt getPrompt() {
+        return prompt;
+    }
+
     @Override
     public void run() {
 
         init();
         this.alias = setRandomAlias();
+        Server.log(this, "joined the server");
         String message;
 
-        StringInputScanner question1 = new StringInputScanner();
-        question1.setMessage(getAlias() + ": ");
+        question1 = new StringInputScanner();
+        question1.setMessage(getAlias() + " send: \n");
+
         while (!clientSocket.isClosed() && (clientSocket != null)) {
             synchronized (this) {
 
@@ -87,14 +91,13 @@ public class PlayerHandler implements Runnable {
                     System.out.println("null");
                     return;
                 }
-                System.out.println(getAlias() + " says: " + message);
                 commandsHandler.handlePlayerInput(message);
             }
         }
     }
 
     public void playerToKill(String message) {
-        server.setPlayerToKill(message);       // qué ito
+        server.setPlayerToKill(message);
     }
 
     public void readyToPlay() {
@@ -114,12 +117,6 @@ public class PlayerHandler implements Runnable {
         return dead;
     }
 
-    public void kill(PlayerHandler playerHandler) {
-
-        playerHandler.die();
-        server.sendKilledMessage(playerHandler);
-    }
-
     public void broadCastMessage(String message) {
         server.broadCast(this, message);
     }
@@ -129,16 +126,12 @@ public class PlayerHandler implements Runnable {
     }
 
     public void vote(String votedPlayer) {
+        System.out.println("votedplayer" + votedPlayer);
         server.sendVote(votedPlayer);
     }
 
     public void returnMessage(String message) {
-        out.println(message);
-        out.flush();
-    }
-
-    public void log(String message) {
-        server.log(this, message);
+        out.println(message + ConsoleColors.RESET);
     }
 
     public void exit() {
@@ -162,11 +155,14 @@ public class PlayerHandler implements Runnable {
 
         StringBuilder clientsList = new StringBuilder();
         for (PlayerHandler list : server.getPlayersList()) {
-            clientsList.append(list.alias + " | ");
+            clientsList.append(list.alias + " , ");
         }
         clientsList.substring(clientsList.length() - 2);
-        log("command /list -users called");
 
         return clientsList + "";
+    }
+
+    public CopyOnWriteArrayList<PlayerHandler> getFromServerPlayerlist() {
+        return server.getPlayersList();
     }
 }

@@ -1,4 +1,6 @@
-package org.academiadecodigo.bootcamp.villagegameserver;
+package villagegameserver;
+
+import villagegameserver.server.Server;
 
 import java.util.Scanner;
 
