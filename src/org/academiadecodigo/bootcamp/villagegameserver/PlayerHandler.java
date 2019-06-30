@@ -33,7 +33,7 @@ public class PlayerHandler implements Runnable {
 
     public void init() {
         try {
-            this.out = new PrintStream(clientSocket.getOutputStream());
+            this.out = new PrintStream(clientSocket.getOutputStream(), true);
             this.in = clientSocket.getInputStream();
             this.prompt = new Prompt(in, out);
         } catch (IOException e) {
@@ -60,7 +60,7 @@ public class PlayerHandler implements Runnable {
     public String wolfVotes() {
         StringInputScanner wolfVote = new StringInputScanner();
         wolfVote.setMessage("Who will you kill tonight?");
-        return prompt.getUserInput(wolfVote);
+        return prompt.getUserInput(wolfVote); // TODO: 30/06/2019 REPLACE BY promptMENU LOGIC
     }
 
     public void setAlias(String message) {
@@ -75,11 +75,14 @@ public class PlayerHandler implements Runnable {
     public void run() {
 
         init();
+
         this.alias = setRandomAlias();
+
+        Server.log(this,"joined the server");
         String message;
 
         StringInputScanner question1 = new StringInputScanner();
-        question1.setMessage(getAlias() + ": ");
+        question1.setMessage(getAlias() + " send: ");
         while (!clientSocket.isClosed() && (clientSocket != null)) {
             synchronized (this) {
 
@@ -87,14 +90,13 @@ public class PlayerHandler implements Runnable {
                     System.out.println("null");
                     return;
                 }
-                System.out.println(getAlias() + " says: " + message);
                 commandsHandler.handlePlayerInput(message);
             }
         }
     }
 
     public void playerToKill(String message) {
-        server.setPlayerToKill(message);       // qué ito
+        server.setPlayerToKill(message);
     }
 
     public void readyToPlay() {
@@ -133,12 +135,11 @@ public class PlayerHandler implements Runnable {
     }
 
     public void returnMessage(String message) {
-        out.println(message);
-        out.flush();
+        out.println(message + ConsoleColors.RESET);
     }
 
     public void log(String message) {
-        server.log(this, message);
+        Server.log(this, message);
     }
 
     public void exit() {
@@ -162,10 +163,9 @@ public class PlayerHandler implements Runnable {
 
         StringBuilder clientsList = new StringBuilder();
         for (PlayerHandler list : server.getPlayersList()) {
-            clientsList.append(list.alias + " | ");
+            clientsList.append(list.alias + " , ");
         }
         clientsList.substring(clientsList.length() - 2);
-        log("command /list -users called");
 
         return clientsList + "";
     }

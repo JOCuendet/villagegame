@@ -1,6 +1,5 @@
 package org.academiadecodigo.bootcamp.villagegameserver;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -12,6 +11,7 @@ public class Game {
     private Map<String, Integer> votes;
     private PlayerHandler wolf;
     private int numberOfVotes = 0;
+    private PlayerHandler votedByWolf;
 
     public Game(Server server, CopyOnWriteArrayList inGamePlayersList) {
         this.server = server;
@@ -19,8 +19,9 @@ public class Game {
         this.votes = new HashMap<>();
     }
 
-    public void start() throws InterruptedException {
-
+    public void start() {
+        server.broadCast(AsciiArt.gameStartString());
+        Server.log("game started");
         assignRoles();
 
         // TODO: 29/06/2019 day logic: until voting ends day happens, after that night happens
@@ -35,7 +36,9 @@ public class Game {
      * during day, players discuss in order to try to get an opinion on who's the wolf
      * when everybody has voted, day ends and night begins
      */
-    private void dayTime() throws InterruptedException {
+    private void dayTime(){
+        Server.log("daytime started");
+        server.broadCast(AsciiArt.dayTimeMessage());
 
         String result = votingDecisions(); // waits for voting decisions
 
@@ -43,7 +46,11 @@ public class Game {
         // TODO: 30/06/2019 acontecer se o nº de votos não for igual ao nº de jogadores
         while (votes.keySet().size() != numberOfVotes) {
             server.broadCast("Waiting for all players to vote. Type /help to see commands.");
-            Thread.sleep(5000);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         for (PlayerHandler player : inGamePlayersList) {
@@ -67,17 +74,20 @@ public class Game {
      * when wolf votes, day begins with a message indicating which player died
      */
     private void nightTime() {
-
+        Server.log("night time started");
+        server.broadCast(AsciiArt.nightTimeMessage());
         for (PlayerHandler player : inGamePlayersList) {
 
             if (player.isWolf()) {
 
                 server.setPlayerToKill(player.wolfVotes());
-                PlayerHandler votedByWolf = server.getPlayerToKill();
+                votedByWolf = server.getPlayerToKill();
                 player.kill(votedByWolf);
                 break;
             }
         }
+        Server.log("player " +votedByWolf.getAlias() + " killed by wolf.");
+        server.broadCast("Player: "+ votedByWolf.getAlias() +" got killed by the WOLF");
         // dayTime(); same as in dayTime
     }
 
@@ -86,6 +96,7 @@ public class Game {
         int rand = (int) (Math.random() * inGamePlayersList.size());
         wolf = inGamePlayersList.get(rand);
         wolf.makeWolf();
+        Server.log("wolf chosen.");
     }
 
     private Map<String, Integer> votesStatistic() {

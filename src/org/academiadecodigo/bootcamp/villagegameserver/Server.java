@@ -35,6 +35,10 @@ public class Server {
         countPlayers=0;
     }
 
+    public static String getServerSig() {
+        return ""+ ConsoleColors.YELLOW_BOLD +"# Game Master #";
+    }
+
     public CopyOnWriteArrayList<PlayerHandler> getPlayersList() {
         return playersList;
     }
@@ -57,38 +61,29 @@ public class Server {
     public void sendReadyStatus() {
         countPlayers++;
         if (countPlayers >= 4 && isStartGame) {
-            System.out.println("starto game");
             exit = true;
         }
     }
 
-    public void startGame(){
+    public void start() {
+        log("server started");
+        game = new Game(this, playersList);
 
-        isStartGame = true;
-        if (countPlayers > numberPlayers && isStartGame) {
-            System.out.println("starto game");
-            exit = true;
-            clientSocket=null;
-        }
-    }
-
-    public void start() throws InterruptedException {
-
-        game = new Game(this,playersList);
         try {
             serverSocket = new ServerSocket(port);
             clientThreadPool = Executors.newFixedThreadPool(numberPlayers);
             while(playersList.size()<numberPlayers) {
+                log("Server waiting new connection");
                 clientSocket = serverSocket.accept();
                 playerhandler = new PlayerHandler(this, clientSocket);
                 playersList.add(playerhandler);
                 clientThreadPool.submit(playerhandler);
             }
             while(countPlayers!=numberPlayers) {
-
+                // TODO: 30/06/2019  WTF IS THIS EMPTY LOOP!?!?!?!? (by: Jonathan)
             }
 
-            System.out.println("game started");
+
             game.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,12 +98,12 @@ public class Server {
             }
             PrintWriter outMessage = null;
             try {
-                outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
+                outMessage = new PrintWriter(player.getClientSocket().getOutputStream(), true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            outMessage.println(message);
-            outMessage.flush();
+            outMessage.println(message  + ConsoleColors.RESET);
+            log(playerHandler, message);
         }
     }
 
@@ -118,22 +113,21 @@ public class Server {
 
             PrintWriter outMessage = null;
             try {
-                outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
+                outMessage = new PrintWriter(player.getClientSocket().getOutputStream(), true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            outMessage.println(message);
-            outMessage.flush();
+            outMessage.println(message + ConsoleColors.RESET);
+            log(message);
         }
     }
-
-
 
     public void setPlayerToKill(String playerNameKilledByWolf) {
 
         for (PlayerHandler player : playersList) {
             if (player.getAlias().equals(playerNameKilledByWolf)) {
                 playerToKill = player;
+                log("player to be killed by wolf chosen");
             }
         }
     }
@@ -145,18 +139,22 @@ public class Server {
         }
         PrintWriter outMessage = null;
         try {
-            outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
+            outMessage = new PrintWriter(player.getClientSocket().getOutputStream(), true);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        outMessage.println(message);
-        outMessage.flush();
+        outMessage.println(message + ConsoleColors.RESET);
+        log(message);
     }
+
     public PlayerHandler getPlayerToKill() {
         return playerToKill;
     }
 
-    public void log(PlayerHandler playerHandler, String message) {
-        System.out.println(playerHandler.getAlias()+" - "+message);
+    public static void log(PlayerHandler playerHandler, String message) {
+        System.out.println(ConsoleColors.RESET + playerHandler.getAlias()+" - "+message);
+    }
+    public static void log(String message) {
+        System.out.println(ConsoleColors.RESET + message);
     }
 }
