@@ -3,6 +3,7 @@ package villagegameserver.server;
 import villagegameserver.aesthetics.ConsoleColors;
 import villagegameserver.game.Game;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -20,6 +21,7 @@ public class Server {
     private Socket clientSocket;
     private Game game;
     private PlayerHandler playerhandler;
+    private PlayerHandler playerToKill;
     private ArrayList<String> votes;
     private boolean exit;
     private int countPlayers;
@@ -39,24 +41,7 @@ public class Server {
         votes = new ArrayList<>();
     }
 
-    public CopyOnWriteArrayList<PlayerHandler> getPlayersList() {
-        return playersList;
-    }
-
-    public Game getGame() {
-        return game;
-    }
-
-    public ArrayList<String> getVotes() {
-        return votes;
-    }
-
-    public boolean getIsStartGame() {
-        return isStartGame;
-    }
-
     public synchronized void sendVote(String player) {
-        System.out.println("player" + player);
         votes.add(player);
         System.out.println(votes.size() + " " + playersList.size());
 
@@ -125,14 +110,14 @@ public class Server {
             if (playerHandler.equals(player)) {
                 continue;
             }
-            PrintWriter outMessage = null;
+            DataOutputStream outMessage = null;
             try {
-                outMessage = new PrintWriter(player.getClientSocket().getOutputStream(), true);
+                outMessage = new DataOutputStream(player.getClientSocket().getOutputStream());
+                outMessage.writeBytes(message + ConsoleColors.RESET);
+                log(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            outMessage.println(message + ConsoleColors.RESET);
-            log(playerHandler, message);
         }
     }
 
@@ -140,15 +125,14 @@ public class Server {
 
         for (PlayerHandler player : playersList) {
 
-            PrintWriter outMessage = null;
+            DataOutputStream outMessage = null;
             try {
-                outMessage = new PrintWriter(player.getClientSocket().getOutputStream(), true);
-                //player.prompt.getUserInput(player.question1);
+                outMessage = new DataOutputStream(player.getClientSocket().getOutputStream());
+                outMessage.writeBytes(message + ConsoleColors.RESET);
+                log(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            outMessage.println(message + ConsoleColors.RESET);
-            log(message);
         }
     }
 
@@ -156,7 +140,9 @@ public class Server {
 
         for (PlayerHandler player : playersList) {
             if (player.getAlias().equals(playerNameKilledByWolf)) {
+                playerToKill = player;
                 player.die();
+                sendKilledMessage(playerToKill);
                 log("player to be killed by wolf chosen");
             }
         }
@@ -165,18 +151,19 @@ public class Server {
     }
 
     public void sendKilledMessage(PlayerHandler player) {
+
         String message = "you've been killed by the wolf";
         if (player.isWolf()) {
             message = "you've been killed by villagers";
         }
-        PrintWriter outMessage = null;
+        DataOutputStream outMessage = null;
         try {
-            outMessage = new PrintWriter(player.getClientSocket().getOutputStream(), true);
+            outMessage = new DataOutputStream(player.getClientSocket().getOutputStream());
+            outMessage.writeBytes(message  + ConsoleColors.RESET);
+            log(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        outMessage.println(message + ConsoleColors.RESET);
-        log(message);
     }
 
     public static void log(PlayerHandler playerHandler, String message) {
@@ -185,5 +172,21 @@ public class Server {
 
     public static void log(String message) {
         System.out.println(ConsoleColors.RESET + message);
+    }
+
+    public CopyOnWriteArrayList<PlayerHandler> getPlayersList() {
+        return playersList;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public ArrayList<String> getVotes() {
+        return votes;
+    }
+
+    public boolean getIsStartGame() {
+        return isStartGame;
     }
 }
