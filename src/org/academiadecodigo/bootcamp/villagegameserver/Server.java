@@ -16,18 +16,39 @@ public class Server {
     private Socket clientSocket;
     private Game game;
     private PlayerHandler playerhandler;
+    private ArrayList<String> votes;
+    private boolean exit;
     private ArrayList<String> votes = new ArrayList<>();
     private boolean exit = false;
     private int countPlayers;
-    private boolean isStartGame = false;
-    private CopyOnWriteArrayList<PlayerHandler> playersList = new CopyOnWriteArrayList<>();
+    private boolean isStartGame ;
+    private PlayerHandler playerKilledByWolf;
+    private CopyOnWriteArrayList<PlayerHandler> playersList;
     private PlayerHandler playerToKill;
+    private int numberPlayers;
+    private int port;
+
+    public Server(int port,int numberPlayers){
+        this.port=port;
+        this.numberPlayers=numberPlayers;
+        exit=false;
+        isStartGame=false;
+        this.playersList= new CopyOnWriteArrayList<>();
+        countPlayers=0;
+    }
+
+    public CopyOnWriteArrayList<PlayerHandler> getPlayersList() {
+        return playersList;
+    }
 
     public ArrayList<String> getVotes() {
         return votes;
     }
 
-    public void sendVote(String player) {
+    public boolean getIsStartGame(){
+        return isStartGame;
+    }
+    public void sendVote(String player){
         votes.add(player);
     }
 
@@ -43,45 +64,45 @@ public class Server {
         }
     }
 
-    public boolean getIsStartGame() {
-        return isStartGame;
-    }
+    public void startGame(){
 
-    public void startGame() throws InterruptedException {
         isStartGame = true;
-        if (countPlayers >= 4 && isStartGame) { // (isStartGame é sempre true, ou seja, isto estar aqui é redundante)
-            System.out.println("start game");
-            game.start();
+        if (countPlayers > numberPlayers && isStartGame) {
+            System.out.println("starto game");
             exit = true;
-            clientSocket = null;
+            clientSocket=null;
         }
     }
 
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.start();
-    }
+    public void start(){
 
-    public void start() {
-        game = new Game(this, playersList);
+        game = new Game(this,playersList);
         try {
-            serverSocket = new ServerSocket(9999);
-            clientThreadPool = Executors.newFixedThreadPool(40);
-            while (!exit) {
+            serverSocket = new ServerSocket(port);
+            clientThreadPool = Executors.newFixedThreadPool(numberPlayers);
+            while(playersList.size()<numberPlayers) {
                 clientSocket = serverSocket.accept();
                 playerhandler = new PlayerHandler(this, clientSocket);
                 playersList.add(playerhandler);
                 clientThreadPool.submit(playerhandler);
             }
+            while(countPlayers!=numberPlayers) {
+
+            }
+
             System.out.println("game started");
+            game.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void broadCast(String message) {
-// TODO: 6/28/19 JAY
-        for (PlayerHandler player : playersList) {
+    public void broadCast(PlayerHandler playerHandler, String message){
+
+        for (PlayerHandler player: playersList) {
+            if(playerHandler.equals(player)){
+                continue;
+            }
             PrintWriter outMessage = null;
             try {
                 outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
@@ -118,7 +139,25 @@ public class Server {
         }
     }
 
+    public void sendKilledMessage(PlayerHandler player){
+        String message="you've been killed by the wolf";
+        if(player.isWolf()){
+            message="you've been killed by villagers";
+        }
+        PrintWriter outMessage = null;
+        try {
+            outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        outMessage.println(message);
+        outMessage.flush();
+    }
     public PlayerHandler getPlayerToKill() {
         return playerToKill;
+    }
+
+    public void log(PlayerHandler playerHandler, String message) {
+        System.out.println(playerHandler.getAlias()+" - "+message);
     }
 }

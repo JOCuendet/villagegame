@@ -23,18 +23,12 @@ public class PlayerHandler implements Runnable {
     private PrintStream out;
     private InputStream in;
 
-
     public PlayerHandler(Server server, Socket clientSocket){
         this.commandsHandler = new CommandsHandler(this);
         this.server = server;
         this.clientSocket = clientSocket;
         this.wolf = false;
         this.dead = false;
-
-    }
-
-    public boolean isServerStartgame(){
-        return server.getIsStartGame();
     }
     public void init(){
         try {
@@ -45,7 +39,9 @@ public class PlayerHandler implements Runnable {
             e.printStackTrace();
         }
     }
-
+    public boolean getIsGameStart(){
+        return server.getIsStartGame();
+    }
     public Socket getClientSocket() {
         return clientSocket;
     }
@@ -65,8 +61,7 @@ public class PlayerHandler implements Runnable {
     }
 
     public void setAlias(String message) {
-        String[] str = message.split(" ");
-        this.alias = str[1];
+        this.alias = message;
     }
 
     public String getAlias() {
@@ -77,8 +72,6 @@ public class PlayerHandler implements Runnable {
     public void run() {
         init();
         this.alias = setRandomAlias();
-        System.out.println(getAlias() + " connected.");
-
         String message;
 
         StringInputScanner question1 = new StringInputScanner();
@@ -86,23 +79,18 @@ public class PlayerHandler implements Runnable {
         while (!clientSocket.isClosed() && (clientSocket != null)) {
             synchronized (this) {
 
-                if ((message = prompt.getUserInput(question1)) == null) {
-                    System.out.println("null");
-                    return;
-                }
-                System.out.println(getAlias() + " says: " + message);
-                commandsHandler.handlePlayerInput(message);
+                    if ((message = prompt.getUserInput(question1)) == null) {
+                        System.out.println("null");
+                        return;
+                    }
+                    System.out.println(getAlias() + " says: " + message);
+                    commandsHandler.handlePlayerInput(message);
             }
         }
     }
 
-//    public void playerToKill(String message){
-//        server.playerToKill(message);
-//    }
-
-
-    public void startGame() throws InterruptedException {
-        server.startGame();
+    public void playerToKill(String message){
+            server.playerToKill(message);
     }
 
     public void readyToPlay(){
@@ -136,16 +124,59 @@ public class PlayerHandler implements Runnable {
 
     }
 
+    public void kill(PlayerHandler playerHandler) {
+
+        playerHandler.die();
+        server.sendKilledMessage(playerHandler);
+    }
+
+    public void broadCastMessage(String message){
+        server.broadCast(this, message);
+    }
+
+    private void closeAll(Closeable closeable){
+
+    }
+
     public void vote(String votedPlayer){
         server.sendVote(votedPlayer);
     }
 
     public void returnMessage(String message) {
-        out.println(message);
-        out.flush();
+            out.println(message);
+            out.flush();
     }
 
     public void log(String message) {
-        System.out.println("log: " + getAlias() + " says: " + message);
+       server.log(this, message);
+    }
+
+    public void exit() {
+        die();
+    }
+
+    public void quit() {
+
+        try {
+            server.getPlayersList().remove(this);
+            in.close();
+            out.close();
+            clientSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String showList() {
+
+        StringBuilder clientsList = new StringBuilder();
+        for (PlayerHandler list : server.getPlayersList()){
+            clientsList.append(list.alias + " | ");
+        }
+        clientsList.substring(clientsList.length() - 2);
+        log("command /list -users called");
+
+        return clientsList + "";
     }
 }

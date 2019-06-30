@@ -116,6 +116,6 @@ public class Game {
                 mostVoted = key;
             }
         }
-        return votesStatistic().containsValue(max) ? "Tie" : mostVoted;
+        return votesStatistic().containsValue(max) ? "Tied" : mostVoted;
     }
 }
