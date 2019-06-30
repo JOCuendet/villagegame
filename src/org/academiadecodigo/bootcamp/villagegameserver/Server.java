@@ -1,4 +1,5 @@
 package org.academiadecodigo.bootcamp.villagegameserver;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -15,56 +16,72 @@ public class Server {
     private Socket clientSocket;
     private Game game;
     private PlayerHandler playerhandler;
-    private PlayerHandler playerToKill;
-    private ArrayList<String> votes;
-    private boolean exit=false;
+    private ArrayList<String> votes = new ArrayList<>();
+    private boolean exit = false;
     private int countPlayers;
     private boolean isStartGame = false;
+    private CopyOnWriteArrayList<PlayerHandler> playersList = new CopyOnWriteArrayList<>();
+    private PlayerHandler playerToKill;
 
-    private PlayerHandler playerKilledByWolf;
-
-    public ArrayList<String> getVotes(){
+    public ArrayList<String> getVotes() {
         return votes;
     }
-    public void sendVote(String player){
+
+    public void sendVote(String player) {
         votes.add(player);
     }
-    public void cleanVote(){
+
+    public void cleanVote() {
         votes.clear();
     }
-    public void sendReadyStatus(){
+
+    public void sendReadyStatus() {
         countPlayers++;
-        if(countPlayers>=4 && isStartGame ){
-            exit=true;
+        if (countPlayers >= 4 && isStartGame) {
+            System.out.println("starto game");
+            exit = true;
         }
     }
-    public void startGame(){
-        isStartGame=true;
+
+    public boolean getIsStartGame() {
+        return isStartGame;
     }
-    private CopyOnWriteArrayList<PlayerHandler> playersList = new CopyOnWriteArrayList<>();
+
+    public void startGame() throws InterruptedException {
+        isStartGame = true;
+        if (countPlayers >= 4 && isStartGame) { // (isStartGame é sempre true, ou seja, isto estar aqui é redundante)
+            System.out.println("start game");
+            game.start();
+            exit = true;
+            clientSocket = null;
+        }
+    }
+
     public static void main(String[] args) {
         Server server = new Server();
         server.start();
     }
-    public void start(){
-        game = new Game(this,playersList);
+
+    public void start() {
+        game = new Game(this, playersList);
         try {
             serverSocket = new ServerSocket(9999);
             clientThreadPool = Executors.newFixedThreadPool(40);
-            while(!exit) {
+            while (!exit) {
                 clientSocket = serverSocket.accept();
                 playerhandler = new PlayerHandler(this, clientSocket);
                 playersList.add(playerhandler);
                 clientThreadPool.submit(playerhandler);
             }
-            game.start();
+            System.out.println("game started");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void broadCast(String message){
+
+    public void broadCast(String message) {
 // TODO: 6/28/19 JAY
-        for (PlayerHandler player: playersList) {
+        for (PlayerHandler player : playersList) {
             PrintWriter outMessage = null;
             try {
                 outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
@@ -76,15 +93,26 @@ public class Server {
         }
     }
 
-    public PlayerHandler getWolfVote() {
-        return playerKilledByWolf;
+    public void sendKilledMessage(PlayerHandler player) {
+        String message = "you'be been killed by the wolf";
+        if (player.isWolf()) {
+            message = "you've been killed by villagers";
+        }
+
+        PrintWriter outMessage = null;
+        try {
+            outMessage = new PrintWriter(player.getClientSocket().getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        outMessage.println(message);
+        outMessage.flush();
     }
 
-    public void playerToKill(String playerNameKilledByWolf) {
-        for(PlayerHandler player : playersList)
-        {
-            if( player.getAlias().equals(playerNameKilledByWolf)){
-                playerKilledByWolf = player;
+    public void setPlayerToKill(String playerNameKilledByWolf) {
+
+        for (PlayerHandler player : playersList) {
+            if (player.getAlias().equals(playerNameKilledByWolf)) {
                 playerToKill = player;
             }
         }
