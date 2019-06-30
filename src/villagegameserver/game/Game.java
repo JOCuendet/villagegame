@@ -1,9 +1,12 @@
 package villagegameserver.game;
 
 import villagegameserver.aesthetics.AsciiArt;
+import villagegameserver.aesthetics.ConsoleColors;
 import villagegameserver.server.PlayerHandler;
 import villagegameserver.server.Server;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,6 +44,7 @@ public class Game {
         while (!wolf.isDead() || inGamePlayersList.size() > 1) {
             while (!toNight) {
                 try {
+                    if (wolf.isDead()) return;
                     dayTime();
                     wait();
                 } catch (InterruptedException e) {
@@ -48,8 +52,13 @@ public class Game {
                 }
             }
             System.out.println("end of daytime");
+
             while (!voteTime) {
                 try {
+                    if (wolf.isDead()) {
+                        gameEnds();
+                        return;
+                    }
                     voteTime();
                     wait();
                 } catch (InterruptedException e) {
@@ -57,7 +66,12 @@ public class Game {
                 }
             }
             while (!toDay) {
+
                 try {
+                    if (wolf.isDead()) {
+                        gameEnds();
+                        return;
+                    }
                     nightTime();
                     wait();
                 } catch (InterruptedException e) {
@@ -66,7 +80,21 @@ public class Game {
             }
             toDay = false;
             toNight = false;
+            gameEnds();
         }
+    }
+
+    public void gameEnds() {
+
+        server.broadCast(AsciiArt.gameOver());
+        String winningStr;
+        if (wolf.isDead()) {
+            winningStr = "  ============================= Villagers Won! =============================";
+        } else {
+            winningStr = "  ================================ Wolf Won! ===============================";
+        }
+        server.broadCast(winningStr);
+        Server.log(winningStr);
     }
 
     public synchronized void notifyDay() {
@@ -86,22 +114,27 @@ public class Game {
         System.out.println("day begin");
     }
 
-    private synchronized void voteTime() {
+    public synchronized void voteTime() {
+
         String result = votingDecisions(); // waits for voting decisions
 
-        System.out.println("resultado" + result);
+        System.out.println("resultado " + result);
 
-        for (PlayerHandler player : inGamePlayersList) {
-            System.out.println("player option" + player.getAlias() + result);
-            if (player.getAlias().equals(result)) {
-                System.out.println(player.getAlias());
-                server.broadCast("There will be BLOOD tonight.");
-                player.die();
-                notifyDay();
+        if (!result.equals("Tied")) {
 
-                System.out.println("player killed" + player.getAlias());
-                //  inGamePlayersList.remove(player);
-                break;
+            for (PlayerHandler player : inGamePlayersList) {
+
+                System.out.println("player option " + player.getAlias() + result);
+
+                if (player.getAlias().equals(result)) {
+
+                    System.out.println(player.getAlias());
+                    server.broadCast("There will be BLOOD tonight.");
+                    player.die();
+                    notifyDay();
+                    System.out.println("player killed" + player.getAlias());
+                    break;
+                }
             }
         }
         System.out.println("player kill continue loop");
@@ -127,6 +160,15 @@ public class Game {
         wolf.makeWolf();
         Server.log("wolf chosen.");
         System.out.println("wolf is" + wolf.getAlias());
+        PrintWriter outMessage = null;
+
+        try {
+            outMessage = new PrintWriter(wolf.getClientSocket().getOutputStream(), true);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        outMessage.println("you are the wolf" + ConsoleColors.RESET);
     }
 
     private Map<String, Integer> votesStatistic() {
@@ -148,7 +190,6 @@ public class Game {
         String mostVoted = "";
 
         for (String key : votesStatistic().keySet()) {
-
             if (max < votesStatistic().get(key)) {
 
                 max = votesStatistic().get(key);
