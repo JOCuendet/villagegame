@@ -101,7 +101,7 @@ public class PlayerHandler implements Runnable {
 //    }
 
 
-    public void startGame(){
+    public void startGame() throws InterruptedException {
         server.startGame();
     }
 
