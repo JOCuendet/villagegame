@@ -83,7 +83,6 @@ public class Game {
     }
 
     private String votingDecisions() {
-        // TODO: 6/28/19 EDMA
         int max = 0;
         String mostVoted = "";
 
@@ -95,6 +94,6 @@ public class Game {
                 mostVoted = key;
             }
         }
-        return votesStatistic().containsValue(max) ? "Tie" : mostVoted;
+        return votesStatistic().containsValue(max) ? "Tied" : mostVoted;
     }
 }
