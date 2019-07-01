@@ -1,12 +1,9 @@
-package villagegameserver.game;
+package org.academiadecodigo.bootcamp.villagegame.game;
 
-import villagegameserver.aesthetics.AsciiArt;
-import villagegameserver.aesthetics.ConsoleColors;
-import villagegameserver.server.PlayerHandler;
-import villagegameserver.server.Server;
+import org.academiadecodigo.bootcamp.villagegame.aesthetics.AsciiArt;
+import org.academiadecodigo.bootcamp.villagegame.server.PlayerHandler;
+import org.academiadecodigo.bootcamp.villagegame.server.Server;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;

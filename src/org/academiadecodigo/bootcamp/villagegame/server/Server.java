@@ -1,11 +1,10 @@
-package villagegameserver.server;
+package org.academiadecodigo.bootcamp.villagegame.server;
 
-import villagegameserver.aesthetics.ConsoleColors;
-import villagegameserver.game.Game;
+import org.academiadecodigo.bootcamp.villagegame.game.Game;
+import org.academiadecodigo.bootcamp.villagegame.aesthetics.ConsoleColors;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;

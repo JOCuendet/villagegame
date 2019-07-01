@@ -2,12 +2,12 @@
  * Created by Jonathan Cuendet
  */
 
-package villagegameserver.server;
+package org.academiadecodigo.bootcamp.villagegame.server;
 
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-import villagegameserver.aesthetics.AsciiArt;
-import villagegameserver.aesthetics.ConsoleColors;
+import org.academiadecodigo.bootcamp.villagegame.aesthetics.AsciiArt;
+import org.academiadecodigo.bootcamp.villagegame.aesthetics.ConsoleColors;
 
 import java.io.*;
 import java.net.Socket;

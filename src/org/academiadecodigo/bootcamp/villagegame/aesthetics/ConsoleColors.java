@@ -1,4 +1,4 @@
-package villagegameserver.aesthetics;
+package org.academiadecodigo.bootcamp.villagegame.aesthetics;
 
 public class ConsoleColors {
     // Reset

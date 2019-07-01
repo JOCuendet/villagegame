@@ -2,7 +2,7 @@
  * Created by: Jonathan Cuendet
  */
 
-package villagegameserver.server;
+package org.academiadecodigo.bootcamp.villagegame.server;
 
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 

@@ -2,7 +2,7 @@
  * Created by: Jonathan Cuendet
  */
 
-package villagegameserver.aesthetics;
+package org.academiadecodigo.bootcamp.villagegame.aesthetics;
 
 public class AsciiArt {
 
