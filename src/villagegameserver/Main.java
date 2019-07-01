@@ -1,5 +1,6 @@
 package villagegameserver;
 
+
 import villagegameserver.server.Server;
 
 import java.util.Scanner;

@@ -6,6 +6,7 @@ package villagegameserver.server;
 
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
+import villagegameserver.aesthetics.AsciiArt;
 import villagegameserver.aesthetics.ConsoleColors;
 
 import java.io.*;
@@ -49,6 +50,7 @@ public class PlayerHandler implements Runnable {
         init();
         this.alias = setRandomAlias();
         Server.log(this, "joined the server");
+        returnMessage(AsciiArt.welcomeMessage());
 
         BufferedReader userInputStream = null;
         String message;
@@ -58,8 +60,8 @@ public class PlayerHandler implements Runnable {
                 try {
                     userInputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     if ((message = userInputStream.readLine()) == null) {
-                        die();
                         quit();
+                        exit();
                         return;
                     }
                     commandsHandler.handlePlayerInput(message);
@@ -86,12 +88,7 @@ public class PlayerHandler implements Runnable {
         server.broadCast(this, message);
     }
 
-    private void closeAll(Closeable closeable) {
-
-    }
-
     public void vote(String votedPlayer) {
-        System.out.println("votedplayer" + votedPlayer);
         server.sendVote(votedPlayer);
     }
 
@@ -99,11 +96,11 @@ public class PlayerHandler implements Runnable {
         out.println(message + ConsoleColors.RESET);
     }
 
-    public void exit() {
+    public void quit() {
         die();
     }
 
-    public void quit() {
+    public void exit() {
 
         try {
             server.getPlayersList().remove(this);
@@ -127,7 +124,7 @@ public class PlayerHandler implements Runnable {
         return clientsList + "";
     }
 
-    public CopyOnWriteArrayList<PlayerHandler> getFromServerPlayerlist() {
+    public CopyOnWriteArrayList<PlayerHandler> getFromServerPlayerList() {
         return server.getPlayersList();
     }
 

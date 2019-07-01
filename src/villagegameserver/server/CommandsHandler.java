@@ -39,7 +39,7 @@ public class CommandsHandler {
 
     private String[] getPeopleAlive() {
         ArrayList<String> peopleAlive = new ArrayList<>();
-        for (PlayerHandler player : playerHandler.getFromServerPlayerlist()) {
+        for (PlayerHandler player : playerHandler.getFromServerPlayerList()) {
             if (!player.isDead()) {
                 peopleAlive.add(player.getAlias());
             }
@@ -51,9 +51,9 @@ public class CommandsHandler {
     public void handlePlayerInput(String message) {
         if (message.startsWith("/")) {
 
-            String teststring = getCommand(message);
+            String command = getCommand(message);
 
-            switch (teststring) {
+            switch (command) {
                 case "help":
                     playerHandler.returnMessage(getHelp());
                     break;
@@ -63,8 +63,8 @@ public class CommandsHandler {
                     playerHandler.exit();
                     break;
                 case "alias":
-                    Server.log(playerHandler, playerHandler.getAlias() + "Changed name to: " + message);
-                    playerHandler.broadCastMessage(playerHandler.getAlias() + " has changed his name to " + message);
+                    Server.log(playerHandler, playerHandler.getAlias() + " Changed name to: " + getCommandOption(message));
+                    playerHandler.broadCastMessage(playerHandler.getAlias() + " Changed name: " + getCommandOption(message));
                     playerHandler.setAlias(getCommandOption(message));
                     break;
                 case "list":
@@ -89,7 +89,6 @@ public class CommandsHandler {
                         playerHandler.broadCastMessage(playerHandler.getAlias() + " voted.");
                         Server.log(playerHandler, "has voted.");
                         playerHandler.vote(voteOptions[answerIdx - 1]);
-                        System.out.println("voted in comand handler" + voteOptions[answerIdx - 1]);
                     }
                     break;
                 case "kill":
@@ -98,21 +97,12 @@ public class CommandsHandler {
                         MenuInputScanner menu2 = new MenuInputScanner(voteOptions2);
                         menu2.setMessage("vote");
                         int answerIdx2 = playerHandler.getPrompt().getUserInput(menu2);
-                        playerHandler.broadCastMessage(playerHandler.getAlias() + " voted.");
-                        Server.log(playerHandler, "has voted.");
+                        playerHandler.broadCastMessage(playerHandler.getAlias() + " has voted.");
+                        Server.log(playerHandler, " has voted.");
                         playerHandler.playerToKill(voteOptions2[answerIdx2 - 1]);
-                        System.out.println("voted in command handler" + voteOptions2[answerIdx2 - 1]);
                     }
                     break;
-                case "voteWolf":
-                    playerHandler.broadCastMessage("The wolf, as chosen.");
-                    Server.log("wolf as chosen.");
-                    playerHandler.playerToKill(getCommandOption(message));
-                    break;
-                case "test":
-                    playerHandler.returnMessage("test");
-                    break;
-                case "killVillager":
+                case "execute":
                     playerHandler.server.getGame().votingTime();
                     break;
                 default:
@@ -121,7 +111,7 @@ public class CommandsHandler {
             }
             return;
         }
-        playerHandler.broadCastMessage(playerHandler.getAlias() + " has send message " + message + "\n");
+        playerHandler.broadCastMessage(playerHandler.getAlias() + ": " + message + "\n");
         Server.log(playerHandler, message);
     }
 
@@ -132,30 +122,26 @@ public class CommandsHandler {
                 "\n  # GENERAL #" +
                 "\n /help                           [show help menu]" +
                 "\n /vote                           [vote for the person you think it is the wolf]" +
-                "\n /alias newalias                 [changes your alias/nickname]" +
-                "\n /list -users                    [shows a list of all users connected]" +
+                "\n /alias new alias                [changes your alias/nickname]" +
+                "\n /list                           [shows a list of all users connected]" +
                 "\n /exit                           [exit Game and Server]" +
-                "\n                                   red = hasn't voted yet." +
-                "\n                                   green = has voted. ]" +
+                "\n                                   " +
+                "\n                                   " +
                 "\n # GAME #";
 
         if (!playerHandler.getIsGameStart()) {
             helpMessage += "\n /ready                          [ set ready to play ]" +
                     "\n /quit                           [ Exit the game ]";
         } else {
-            if (true) {
                 helpMessage +=
-                        "\n /vote                           [ vote for the person you think it is the wolf ]";
-            } else {
-                helpMessage += "\n /changevote                     [ vote for the person you think it is the wolf ]";
-            }
-
+                        "\n /vote                           [ vote for the person you think it is the wolf ]" +
+                        "\n /execute                     [ executes the most voted player during day time ]";
         }
 
         if (playerHandler.isWolf()) {
             helpMessage += "\n" +
                     "\n # YOU ARE THE WOLF #" +
-                    "\n /kill                           [ chose your victim ]";
+                    "\n /kill   Player name             [ chose your victim ]";
         }
         helpMessage += "\n\n";
         return helpMessage;

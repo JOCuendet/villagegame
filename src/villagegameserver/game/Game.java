@@ -110,34 +110,24 @@ public class Game {
 
         Server.log("daytime started");
         server.broadCast(AsciiArt.dayTimeMessage());
-        server.broadCast("Waiting for all players to vote. Type /help to see commands.");
-        System.out.println("day begin");
+        server.broadCast("\n Waiting for all players to vote. Type /help to see commands. \n");
     }
 
     public synchronized void voteTime() {
 
         String result = votingDecisions(); // waits for voting decisions
-
-        System.out.println("resultado " + result);
-
         if (!result.equals("Tied")) {
 
             for (PlayerHandler player : inGamePlayersList) {
-
-                System.out.println("player option " + player.getAlias() + result);
-
                 if (player.getAlias().equals(result)) {
-
-                    System.out.println(player.getAlias());
-                    server.broadCast("There will be BLOOD tonight.");
+                    server.broadCast(AsciiArt.ExecuteVillager());
                     player.die();
                     notifyDay();
-                    System.out.println("player killed" + player.getAlias());
+
                     break;
                 }
             }
         }
-        System.out.println("player kill continue loop");
         votes.clear();
     }
 
@@ -159,16 +149,8 @@ public class Game {
         wolf = inGamePlayersList.get(rand);
         wolf.makeWolf();
         Server.log("wolf chosen.");
-        System.out.println("wolf is" + wolf.getAlias());
-        PrintWriter outMessage = null;
 
-        try {
-            outMessage = new PrintWriter(wolf.getClientSocket().getOutputStream(), true);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        outMessage.println("you are the wolf" + ConsoleColors.RESET);
+        wolf.returnMessage(AsciiArt.wolfInformation());
     }
 
     private Map<String, Integer> votesStatistic() {

@@ -43,7 +43,6 @@ public class Server {
 
     public synchronized void sendVote(String player) {
         votes.add(player);
-        System.out.println(votes.size() + " " + playersList.size());
 
         if (votes.size() == playersList.size()) {
 
@@ -52,14 +51,12 @@ public class Server {
                 game.notifyDay();
             }
         }
-        System.out.println(votes);
     }
 
     public synchronized void sendReadyStatus() {
         synchronized (this) {
             countPlayers++;
         }
-        System.out.println("readystatus" + countPlayers);
         if (countPlayers >= 4 && isStartGame) {
             exit = true;
         }
@@ -74,7 +71,6 @@ public class Server {
             clientThreadPool = Executors.newFixedThreadPool(numberPlayers);
             synchronized (this) {
                 while (playersList.size() < numberPlayers) {
-                    System.out.println("playerslistsize " + playersList.size() + "numberplayers " + numberPlayers);
                     log("Server waiting new connection");
                     clientSocket = serverSocket.accept();
                     playerhandler = new PlayerHandler(this, clientSocket);
@@ -85,19 +81,7 @@ public class Server {
                     }
                 }
             }
-            System.out.println("countplayers " + countPlayers);
 
-            while (countPlayers != numberPlayers) {
-
-                System.out.println(countPlayers + numberPlayers);
-
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("countplayers2 " + countPlayers);
             game.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -152,9 +136,9 @@ public class Server {
 
     public void sendKilledMessage(PlayerHandler player) {
 
-        String message = "you've been killed by the wolf";
+        String message = "you've been killed by the wolf\n";
         if (player.isWolf()) {
-            message = "you've been killed by villagers";
+            message = "you've been killed by villagers\n";
         }
         DataOutputStream outMessage = null;
         try {
