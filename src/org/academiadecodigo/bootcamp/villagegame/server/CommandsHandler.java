@@ -1,7 +1,3 @@
-/**
- * Created by: Jonathan Cuendet
- */
-
 package org.academiadecodigo.bootcamp.villagegame.server;
 
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
@@ -49,6 +45,9 @@ public class CommandsHandler {
     }
 
     public void handlePlayerInput(String message) {
+        if(message.equals("")) {
+            return;
+        }
         if (message.startsWith("/")) {
 
             String command = getCommand(message);
@@ -111,8 +110,10 @@ public class CommandsHandler {
             }
             return;
         }
-        playerHandler.broadCastMessage(playerHandler.getAlias() + ": " + message + "\n");
-        Server.log(playerHandler, message);
+
+            playerHandler.broadCastMessage(playerHandler.getAlias() + ": " + message + "\n");
+            Server.log(playerHandler, message);
+
     }
 
     private String getHelp() {
