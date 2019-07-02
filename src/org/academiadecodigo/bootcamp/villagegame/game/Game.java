@@ -167,14 +167,22 @@ public class Game {
 
         int max = 0;
         String mostVoted = "";
+        int count = 0;
 
         for (String key : votesStatistic().keySet()) {
             if (max < votesStatistic().get(key)) {
-
                 max = votesStatistic().get(key);
                 mostVoted = key;
             }
         }
-        return votesStatistic().containsValue(max) ? "Tied" : mostVoted;
+
+        for (Integer value : votesStatistic().values()) {
+
+            if (value == max) {
+                count++;
+            }
+        }
+
+        return count > 0 ? "Tied" : mostVoted;
     }
 }
