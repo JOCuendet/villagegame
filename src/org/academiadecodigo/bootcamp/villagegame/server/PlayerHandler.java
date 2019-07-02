@@ -4,6 +4,8 @@
 
 package org.academiadecodigo.bootcamp.villagegame.server;
 
+
+
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
 import org.academiadecodigo.bootcamp.villagegame.aesthetics.AsciiArt;

@@ -1,5 +1,7 @@
 package org.academiadecodigo.bootcamp.villagegame.server;
 
+
+
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 
 import java.util.ArrayList;
