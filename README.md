@@ -15,7 +15,7 @@ Run the -jar file on the terminal and follow onScreen instructions.
 
 ## Usage
 This project is meant to run on the computer that will act as the main server to host the game.
-Once you run the server file on the computer it will ask for an IP and a Port Number.
+Once you run the server file on the computer it will ask for a Port Number.
 The players should connect to the server with 'netcat <Server IPaddress><Server Port>'.
 
 ## Game rules
