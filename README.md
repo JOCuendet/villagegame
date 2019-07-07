@@ -41,6 +41,8 @@ The players should connect to the server with 'netcat <Server IPaddress><Server 
 
 - The game switches back to day and the cicle continues until the wolf is killed by the villagers or the wolf kills everyone.
 
+##ScreenShots
+
 ## Credits
 #### Jonathan Cuendet
 #### Fernando Abreu
