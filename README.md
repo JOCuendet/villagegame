@@ -43,11 +43,10 @@ The players should connect to the server with 'netcat <Server IPaddress><Server 
 
 ## ScreenShots
 ![prtsc_1](resources/docs/screenshots/1.png?raw=true "prtsc_1")
-[/resources/docs/screenshots/1.png|alt=prtsc_1]
-[[./resources/docs/screenshots/2.png|alt=prtsc_2]]
-[[~./resources/docs/screenshots/3.png|alt=prtsc_3]]
-[[~/resources/docs/screenshots/4.png|alt=prtsc_4]]
-[[resources/docs/screenshots/5.png|alt=prtsc_5]]
+![prtsc_2](resources/docs/screenshots/2.png?raw=true "prtsc_2")
+![prtsc_3](resources/docs/screenshots/3.png?raw=true "prtsc_3")
+![prtsc_4](resources/docs/screenshots/4.png?raw=true "prtsc_4")
+![prtsc_5](resources/docs/screenshots/5.png?raw=true "prtsc_5")
 
 ## Credits
 #### Jonathan Cuendet
