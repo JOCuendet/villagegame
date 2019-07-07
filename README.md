@@ -41,7 +41,12 @@ The players should connect to the server with 'netcat <Server IPaddress><Server 
 
 - The game switches back to day and the cicle continues until the wolf is killed by the villagers or the wolf kills everyone.
 
-##ScreenShots
+## ScreenShots
+[[https://github.com/JOCuendet/villagegame/resources/docs/screenshots/1.png|alt=prtsc_1]]
+[[https://github.com/JOCuendet/villagegame/resources/docs/screenshots/2.png|alt=prtsc_1]]
+[[https://github.com/JOCuendet/villagegame/resources/docs/screenshots/3.png|alt=prtsc_1]]
+[[https://github.com/JOCuendet/villagegame/resources/docs/screenshots/4.png|alt=prtsc_1]]
+[[https://github.com/JOCuendet/villagegame/resources/docs/screenshots/5.png|alt=prtsc_1]]
 
 ## Credits
 #### Jonathan Cuendet
