@@ -9,7 +9,7 @@ This project was developed by a team of four people in three days' time, for the
 - 'Dead' players can still watch the entire game as it unfolds.
 - 'Not in-game' players cannot talk to 'in-game' players.
 
-## Deployment
+## Build
 `$ Ant build` the project (with the supplied build.xml)
 
 Run the -jar file on the terminal and follow onScreen instructions.
